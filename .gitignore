@@ -1,0 +1,26 @@
+# typical for all available operation systems
+__MACOSX/
+.DS_Store
+Thumbs.db
+
+# some files
+*.gz
+*.tar
+*.bat
+*.dat
+*.pdf
+*.psd
+*.log
+*.txt
+*.flv
+*.wmv
+*.xlsx
+*.xls
+*.docx
+*.doc
+*.phar
+*.mmdb
+*.csv
+
+# ide settings
+.idea/
