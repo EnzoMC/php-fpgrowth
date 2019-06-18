@@ -106,7 +106,7 @@ class FPGrowth
                         $lower_support = $patterns[$antecedentStr];
                         $confidence = (floatval($upper_support) / $lower_support);
                         if ($confidence >= $confidence_threshold) {
-                            $rules[$antecedentStr] = [$consequentStr, $confidence];
+                            $rules[] = [$antecedentStr, $consequentStr, $confidence];
                         }
                     }
                 }

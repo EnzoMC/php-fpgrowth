@@ -47,12 +47,12 @@ Where key is itemset, value is support of that itemset
 Rules returns as array of arrays like:
 
     [
-        ['ITEM_1,ITEM_2' => ['ITEM_3',0.7]],
-        ['ITEM_4' => ['ITEM_5',0.7]],
+        ['ITEM_1,ITEM_2', 'ITEM_3', 0.7],
+        ['ITEM_4','ITEM_5', 0.7],
         ...
     ]
 
-Where keys is left path of rule, value is array, where first item is right path of the rule and second item is confidence of that rule
+Where first value is left path of that rule, second value is right path of that rule and third value is confidence of that rule
 
 #### Result with example transactions
 
@@ -83,54 +83,104 @@ Where keys is left path of rule, value is array, where first item is right path 
     
 `var_dump($rules);`
 
-    array(7) {
-      ["M"]=>
-      array(2) {
+    array(11) {
+      [0]=>
+      array(3) {
         [0]=>
-        string(1) "K"
+        string(1) "M"
         [1]=>
+        string(1) "K"
+        [2]=>
         float(1)
       }
-      ["Y"]=>
-      array(2) {
+      [1]=>
+      array(3) {
         [0]=>
-        string(1) "K"
+        string(1) "Y"
         [1]=>
+        string(1) "K"
+        [2]=>
         float(1)
       }
-      ["O"]=>
-      array(2) {
-        [0]=>
-        string(1) "K"
-        [1]=>
-        float(1)
-      }
-      ["K"]=>
-      array(2) {
+      [2]=>
+      array(3) {
         [0]=>
         string(1) "O"
         [1]=>
+        string(1) "E"
+        [2]=>
+        float(1)
+      }
+      [3]=>
+      array(3) {
+        [0]=>
+        string(1) "K"
+        [1]=>
+        string(1) "E"
+        [2]=>
         float(0.8)
       }
-      ["E,K"]=>
-      array(2) {
-        [0]=>
-        string(1) "O"
-        [1]=>
-        float(1)
-      }
-      ["E,O"]=>
-      array(2) {
+      [4]=>
+      array(3) {
         [0]=>
         string(1) "K"
         [1]=>
+        string(3) "E,O"
+        [2]=>
+        float(0.8)
+      }
+      [5]=>
+      array(3) {
+        [0]=>
+        string(1) "O"
+        [1]=>
+        string(3) "E,K"
+        [2]=>
         float(1)
       }
-      ["K,O"]=>
-      array(2) {
+      [6]=>
+      array(3) {
         [0]=>
-        string(1) "E"
+        string(3) "E,K"
         [1]=>
+        string(1) "O"
+        [2]=>
+        float(1)
+      }
+      [7]=>
+      array(3) {
+        [0]=>
+        string(3) "E,O"
+        [1]=>
+        string(1) "K"
+        [2]=>
+        float(1)
+      }
+      [8]=>
+      array(3) {
+        [0]=>
+        string(3) "K,O"
+        [1]=>
+        string(1) "E"
+        [2]=>
+        float(1)
+      }
+      [9]=>
+      array(3) {
+        [0]=>
+        string(1) "K"
+        [1]=>
+        string(1) "O"
+        [2]=>
+        float(0.8)
+      }
+      [10]=>
+      array(3) {
+        [0]=>
+        string(1) "O"
+        [1]=>
+        string(1) "K"
+        [2]=>
         float(1)
       }
     }
