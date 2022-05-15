@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EnzoMC\PhpFPGrowth;
 
-use Generator;
+use drupol\phpermutations\Generators\Combinations;
 
 class FPGrowth
 {
@@ -108,7 +108,8 @@ class FPGrowth
             $itemset = explode(',', $itemsetStr);
             $upper_support = $patterns[$itemsetStr];
             for ($i = 1; $i < count($itemset); $i++) {
-                foreach (self::combinations($itemset, $i) as $antecedent) {
+                $combinations = new Combinations($itemset, $i);
+                foreach ($combinations->generator() as $antecedent) {
                     sort($antecedent);
                     $antecedentStr = implode(',', $antecedent);
                     $consequent = array_diff($itemset, $antecedent);
@@ -125,48 +126,5 @@ class FPGrowth
             }
         }
         return $rules;
-    }
-
-    /**
-     * @param array $pool
-     * @param int $r
-     * @return Generator
-     * @todo Move to separate class
-     */
-    public static function combinations(array $pool, int $r): Generator
-    {
-        $n = count($pool);
-
-        if ($r > $n) {
-            return;
-        }
-
-        $indices = range(0, $r - 1);
-        yield array_slice($pool, 0, $r);
-
-        for (; ;) {
-            for (; ;) {
-                for ($i = $r - 1; $i >= 0; $i--) {
-                    if ($indices[$i] != $i + $n - $r) {
-                        break 2;
-                    }
-                }
-
-                return;
-            }
-
-            $indices[$i]++;
-
-            for ($j = $i + 1; $j < $r; $j++) {
-                $indices[$j] = $indices[$j - 1] + 1;
-            }
-
-            $row = [];
-            foreach ($indices as $i) {
-                $row[] = $pool[$i];
-            }
-
-            yield $row;
-        }
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EnzoMC\PhpFPGrowth;
 
+use drupol\phpermutations\Generators\Combinations;
+
 class FPTree
 {
     /** @var array<string,int> */
@@ -210,7 +212,8 @@ class FPTree
         }
 
         for ($i = 1; $i <= count($items); $i++) {
-            foreach (FPGrowth::combinations($items, $i) as $subset) {
+            $combinations = new Combinations($items,$i);
+            foreach ($combinations->generator() as $subset) {
                 $pattern = $this->root->value !== null ? array_merge($subset, [$this->root->value]) : $subset;
                 sort($pattern);
                 $min = PHP_INT_MAX;
