@@ -24,3 +24,6 @@ Thumbs.db
 
 # ide settings
 .idea/
+
+# composer packages
+vendor/
