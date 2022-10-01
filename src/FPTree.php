@@ -20,14 +20,14 @@ class FPTree
      * Initialize the tree.
      * @param array $transactions
      * @param int $threshold
-     * @param $root_value
-     * @param int $root_count
+     * @param $rootValue
+     * @param int $rootCount
      */
-    public function __construct(array $transactions, int $threshold, $root_value, int $root_count)
+    public function __construct(array $transactions, int $threshold, $rootValue, int $rootCount)
     {
         $this->frequent = $this->findFrequentItems($transactions, $threshold);
         $this->headers = $this->buildHeaderTable();
-        $this->root = $this->buildFPTree($transactions, $root_value, $root_count, $this->frequent);
+        $this->root = $this->buildFPTree($transactions, $rootValue, $rootCount, $this->frequent);
     }
 
     /**
@@ -75,29 +75,29 @@ class FPTree
     /**
      * Build the FP tree and return the root node.
      * @param $transactions
-     * @param $root_value
-     * @param $root_count
+     * @param $rootValue
+     * @param $rootCount
      * @param $frequent
      * @return FPNode
      */
-    protected function buildFPTree($transactions, $root_value, $root_count, &$frequent): FPNode
+    protected function buildFPTree($transactions, $rootValue, $rootCount, &$frequent): FPNode
     {
-        $root = new FPNode($root_value, $root_count, null);
+        $root = new FPNode($rootValue, $rootCount, null);
         arsort($frequent);
         foreach ($transactions as $transaction) {
-            $sorted_items = [];
+            $sortedItems = [];
             foreach ($transaction as $item) {
                 if (isset($frequent[$item])) {
-                    $sorted_items[] = $item;
+                    $sortedItems[] = $item;
                 }
             }
 
-            usort($sorted_items, function ($a, $b) use ($frequent) {
+            usort($sortedItems, function ($a, $b) use ($frequent) {
                 return $frequent[$b] <=> $frequent[$a];
             });
 
-            if (count($sorted_items) > 0) {
-                $this->insertTree($sorted_items, $root);
+            if (count($sortedItems) > 0) {
+                $this->insertTree($sortedItems, $root);
             }
         }
         return $root;
@@ -131,10 +131,10 @@ class FPTree
         }
 
         // Call function recursively.
-        $remaining_items = array_slice($items, 1, null);
+        $remainingItems = array_slice($items, 1, null);
 
-        if (count($remaining_items) > 0) {
-            $this->insertTree($remaining_items, $child);
+        if (count($remainingItems) > 0) {
+            $this->insertTree($remainingItems, $child);
         }
     }
 
@@ -146,17 +146,17 @@ class FPTree
      */
     protected function treeHasSinglePath(FPNode $node): bool
     {
-        $num_children = count($node->children);
+        $childrenCount = count($node->children);
 
-        if ($num_children > 1) {
+        if ($childrenCount > 1) {
             return false;
         }
 
-        if ($num_children === 0) {
+        if ($childrenCount === 0) {
             return true;
         }
 
-        return $this->treeHasSinglePath($node->children[array_key_first($node->children)]);
+        return $this->treeHasSinglePath(current($node->children));
     }
 
     /**
@@ -238,15 +238,15 @@ class FPTree
     protected function mineSubTrees(int $threshold): array
     {
         $patterns = [];
-        $mining_order = $this->frequent;
-        asort($mining_order);
-        $mining_order = array_keys($mining_order);
+        $miningOrder = $this->frequent;
+        asort($miningOrder);
+        $miningOrder = array_keys($miningOrder);
 
         // Get items in tree in reverse order of occurrences.
-        foreach ($mining_order as $item) {
+        foreach ($miningOrder as $item) {
             /** @var FPNode[] $suffixes */
             $suffixes = [];
-            $conditional_tree_input = [];
+            $conditionalTreeInput = [];
             $node = $this->headers[$item];
 
             // Follow node links to get a list of all occurrences of a certain item.
@@ -265,20 +265,20 @@ class FPTree
                     $parent = $parent->parent;
                 }
                 for ($i = 0; $i < $frequency; $i++) {
-                    $conditional_tree_input[] = $path;
+                    $conditionalTreeInput[] = $path;
                 }
             }
 
             // Now we have the input for a subtree, so construct it and grab the patterns.
-            $subtree = new FPTree($conditional_tree_input, $threshold, $item, $this->frequent[$item]);
-            $subtree_patterns = $subtree->minePatterns($threshold);
+            $subtree = new FPTree($conditionalTreeInput, $threshold, $item, $this->frequent[$item]);
+            $subtreePatterns = $subtree->minePatterns($threshold);
 
             // Insert subtree patterns into main patterns dictionary.
-            foreach (array_keys($subtree_patterns) as $pattern) {
+            foreach (array_keys($subtreePatterns) as $pattern) {
                 if (in_array($pattern, $patterns)) {
-                    $patterns[$pattern] += $subtree_patterns[$pattern];
+                    $patterns[$pattern] += $subtreePatterns[$pattern];
                 } else {
-                    $patterns[$pattern] = $subtree_patterns[$pattern];
+                    $patterns[$pattern] = $subtreePatterns[$pattern];
                 }
             }
         }

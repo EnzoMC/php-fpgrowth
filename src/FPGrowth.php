@@ -104,20 +104,20 @@ class FPGrowth
     protected function generateAssociationRules(array $patterns): array
     {
         $rules = [];
-        foreach (array_keys($patterns) as $itemsetStr) {
-            $itemset = explode(',', $itemsetStr);
-            $upper_support = $patterns[$itemsetStr];
-            for ($i = 1; $i < count($itemset); $i++) {
-                $combinations = new Combinations($itemset, $i);
+        foreach (array_keys($patterns) as $pattern) {
+            $itemSet = explode(',', $pattern);
+            $upperSupport = $patterns[$pattern];
+            for ($i = 1; $i < count($itemSet); $i++) {
+                $combinations = new Combinations($itemSet, $i);
                 foreach ($combinations->generator() as $antecedent) {
                     sort($antecedent);
                     $antecedentStr = implode(',', $antecedent);
-                    $consequent = array_diff($itemset, $antecedent);
+                    $consequent = array_diff($itemSet, $antecedent);
                     sort($consequent);
                     $consequentStr = implode(',', $consequent);
                     if (isset($patterns[$antecedentStr])) {
-                        $lower_support = $patterns[$antecedentStr];
-                        $confidence = floatval($upper_support) / $lower_support;
+                        $lowerSupport = $patterns[$antecedentStr];
+                        $confidence = floatval($upperSupport) / $lowerSupport;
                         if ($confidence >= $this->confidence) {
                             $rules[] = [$antecedentStr, $consequentStr, $confidence];
                         }
