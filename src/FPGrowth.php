@@ -1,46 +1,50 @@
 <?php
 
+declare(strict_types=1);
 
 namespace EnzoMC\PhpFPGrowth;
 
+use drupol\phpermutations\Generators\Combinations;
 
 class FPGrowth
 {
-    protected $support = 3;
-    protected $confidence = 0.7;
+    protected int $support = 3;
+    protected float $confidence = 0.7;
 
     private $patterns;
     private $rules;
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getSupport()
+    public function getSupport(): int
     {
         return $this->support;
     }
 
     /**
-     * @param mixed $support
+     * @param int $support
+     * @return self
      */
-    public function setSupport($support)
+    public function setSupport(int $support): self
     {
         $this->support = $support;
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return float
      */
-    public function getConfidence()
+    public function getConfidence(): float
     {
         return $this->confidence;
     }
 
     /**
-     * @param mixed $confidence
+     * @param float $confidence
+     * @return self
      */
-    public function setConfidence($confidence)
+    public function setConfidence(float $confidence): self
     {
         $this->confidence = $confidence;
         return $this;
@@ -64,48 +68,57 @@ class FPGrowth
 
     /**
      * FPGrowth constructor.
-     * @param $support 1, 2, 3 ...
-     * @param $confidence 0 ... 1
+     * @param int $support 1, 2, 3 ...
+     * @param float $confidence 0 ... 1
      */
-    public function __construct($support, $confidence)
+    public function __construct(int $support, float $confidence)
     {
-        $this->support = $support;
-        $this->confidence = $confidence;
+        $this->setSupport($support);
+        $this->setConfidence($confidence);
     }
 
     /**
      * Do algorithm
-     * @param $transactions
+     * @param array $transactions
      */
-    public function run($transactions)
+    public function run(array $transactions)
     {
-        $this->patterns = $this->findFrequentPatterns($transactions, $this->support);
-        $this->rules = $this->generateAssociationRules($this->patterns, $this->confidence);
+        $this->patterns = $this->findFrequentPatterns($transactions);
+        $this->rules = $this->generateAssociationRules($this->patterns);
     }
 
-    protected function findFrequentPatterns($transactions, $support_threshold)
+    /**
+     * @param array $transactions
+     * @return array<string,int>
+     */
+    protected function findFrequentPatterns(array $transactions): array
     {
-        $tree = new FPTree($transactions, $support_threshold, null, null);
-        return $tree->minePatterns($support_threshold);
+        $tree = new FPTree($transactions, $this->support, null, 0);
+        return $tree->minePatterns($this->support);
     }
 
-    protected function generateAssociationRules($patterns, $confidence_threshold)
+    /**
+     * @param array $patterns
+     * @return array
+     */
+    protected function generateAssociationRules(array $patterns): array
     {
         $rules = [];
-        foreach (array_keys($patterns) as $itemsetStr) {
-            $itemset = explode(',', $itemsetStr);
-            $upper_support = $patterns[$itemsetStr];
-            for ($i = 1; $i < count($itemset); $i++) {
-                foreach (self::combinations($itemset, $i) as $antecedent) {
+        foreach (array_keys($patterns) as $pattern) {
+            $itemSet = explode(',', $pattern);
+            $upperSupport = $patterns[$pattern];
+            for ($i = 1; $i < count($itemSet); $i++) {
+                $combinations = new Combinations($itemSet, $i);
+                foreach ($combinations->generator() as $antecedent) {
                     sort($antecedent);
                     $antecedentStr = implode(',', $antecedent);
-                    $consequent = array_diff($itemset, $antecedent);
+                    $consequent = array_diff($itemSet, $antecedent);
                     sort($consequent);
                     $consequentStr = implode(',', $consequent);
                     if (isset($patterns[$antecedentStr])) {
-                        $lower_support = $patterns[$antecedentStr];
-                        $confidence = (floatval($upper_support) / $lower_support);
-                        if ($confidence >= $confidence_threshold) {
+                        $lowerSupport = $patterns[$antecedentStr];
+                        $confidence = floatval($upperSupport) / $lowerSupport;
+                        if ($confidence >= $this->confidence) {
                             $rules[] = [$antecedentStr, $consequentStr, $confidence];
                         }
                     }
@@ -113,67 +126,5 @@ class FPGrowth
             }
         }
         return $rules;
-    }
-
-    public static function iter($var)
-    {
-
-        switch (true) {
-            case $var instanceof \Iterator:
-                return $var;
-
-            case $var instanceof \Traversable:
-                return new \IteratorIterator($var);
-
-            case is_string($var):
-                $var = str_split($var);
-
-            case is_array($var):
-                return new \ArrayIterator($var);
-
-            default:
-                $type = gettype($var);
-                throw new \InvalidArgumentException("'$type' type is not iterable");
-        }
-
-        return;
-    }
-
-    public static function combinations($iterable, $r)
-    {
-        $pool = is_array($iterable) ? $iterable : iterator_to_array(self::iter($iterable));
-        $n = sizeof($pool);
-
-        if ($r > $n) {
-            return;
-        }
-
-        $indices = range(0, $r - 1);
-        yield array_slice($pool, 0, $r);
-
-        for (; ;) {
-            for (; ;) {
-                for ($i = $r - 1; $i >= 0; $i--) {
-                    if ($indices[$i] != $i + $n - $r) {
-                        break 2;
-                    }
-                }
-
-                return;
-            }
-
-            $indices[$i]++;
-
-            for ($j = $i + 1; $j < $r; $j++) {
-                $indices[$j] = $indices[$j - 1] + 1;
-            }
-
-            $row = [];
-            foreach ($indices as $i) {
-                $row[] = $pool[$i];
-            }
-
-            yield $row;
-        }
     }
 }
