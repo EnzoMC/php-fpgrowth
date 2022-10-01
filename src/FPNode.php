@@ -11,7 +11,7 @@ class FPNode
     public ?FPNode $parent = null;
     public ?FPNode $link = null;
     /** @var FPNode[] */
-    public array $children;
+    public array $children = [];
 
     /**
      * Create the node.
