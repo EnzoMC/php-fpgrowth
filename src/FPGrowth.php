@@ -10,6 +10,7 @@ class FPGrowth
 {
     protected int $support = 3;
     protected float $confidence = 0.7;
+    private int $maxLength = 0;
 
     private $patterns;
     private $rules;
@@ -50,6 +51,15 @@ class FPGrowth
         return $this;
     }
 
+    public function getMaxLength(): int
+    {
+        return $this->maxLength;
+    }
+
+    public function setMaxLength(int $maxLength): void
+    {
+        $this->maxLength = $maxLength;
+    }
     /**
      * @return mixed
      */
@@ -71,10 +81,11 @@ class FPGrowth
      * @param int $support 1, 2, 3 ...
      * @param float $confidence 0 ... 1
      */
-    public function __construct(int $support, float $confidence)
+    public function __construct(int $support, float $confidence, int $maxLength = 0)
     {
         $this->setSupport($support);
         $this->setConfidence($confidence);
+        $this->setMaxLength($maxLength);
     }
 
     /**
@@ -93,7 +104,7 @@ class FPGrowth
      */
     protected function findFrequentPatterns(array $transactions): array
     {
-        $tree = new FPTree($transactions, $this->support, null, 0);
+        $tree = new FPTree($transactions, $this->support, null, 0, $this->maxLength);
         return $tree->minePatterns($this->support);
     }
 
