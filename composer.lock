@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b59ec7717453f90d00506a40f1b0b74e",
+    "content-hash": "6bc101780b77e298852711a5f66f3f7f",
     "packages": [
         {
             "name": "drupol/phpermutations",
-            "version": "1.4.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupol/phpermutations.git",
-                "reference": "869912ebee25a761f09518299004eefd1c73f280"
+                "reference": "e11e36ce1b4d18e7d81659fe3e5bfb936f1cb53a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drupol/phpermutations/zipball/869912ebee25a761f09518299004eefd1c73f280",
-                "reference": "869912ebee25a761f09518299004eefd1c73f280",
+                "url": "https://api.github.com/repos/drupol/phpermutations/zipball/e11e36ce1b4d18e7d81659fe3e5bfb936f1cb53a",
+                "reference": "e11e36ce1b4d18e7d81659fe3e5bfb936f1cb53a",
                 "shasum": ""
             },
             "require": {
@@ -28,6 +28,7 @@
                 "phpunit/php-code-coverage": "^4 || ^5",
                 "phpunit/phpunit": "^6 || ^7"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -67,13 +68,15 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-05-11T07:42:22+00:00"
+            "time": "2023-11-20T09:41:36+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "drupol/phpermutations": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

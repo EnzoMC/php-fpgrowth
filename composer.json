@@ -10,7 +10,7 @@
   ],
   "require": {
     "php": ">=7.4",
-    "drupol/phpermutations": "^1.4"
+    "drupol/phpermutations": "dev-master"
   },
   "autoload": {
     "psr-4": {
