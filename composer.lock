@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6bc101780b77e298852711a5f66f3f7f",
+    "content-hash": "3b3392d76cfd18742f001cc51d3ef456",
     "packages": [
         {
             "name": "drupol/phpermutations",
