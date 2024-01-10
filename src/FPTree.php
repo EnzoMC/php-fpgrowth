@@ -16,6 +16,12 @@ class FPTree
 
     private FPNode $root;
 
+    private int $maxLength = 0;
+
+    private string $itemsetSeparator;
+
+    private int    $depth = 0;
+
     /**
      * Initialize the tree.
      * @param array $transactions
@@ -23,11 +29,13 @@ class FPTree
      * @param $rootValue
      * @param int $rootCount
      */
-    public function __construct(array $transactions, int $threshold, $rootValue, int $rootCount)
+    public function __construct(array $transactions, int $threshold, $rootValue, int $rootCount, $maxLength = 0, string $itemsetSeparator = "\0")
     {
         $this->frequent = $this->findFrequentItems($transactions, $threshold);
         $this->headers = $this->buildHeaderTable();
         $this->root = $this->buildFPTree($transactions, $rootValue, $rootCount, $this->frequent);
+        $this->maxLength = $maxLength;
+        $this->itemsetSeparator = $itemsetSeparator;
     }
 
     /**
@@ -168,6 +176,8 @@ class FPTree
     {
         if ($this->treeHasSinglePath($this->root)) {
             return $this->generatePatternList();
+        } elseif ($this->maxLength && $this->maxLength <= $this->getDepth()) {
+            return [];
         }
 
         return $this->zipPatterns($this->mineSubTrees($threshold));
@@ -188,10 +198,10 @@ class FPTree
         // We are in a conditional tree.
         $newPatterns = [];
         foreach (array_keys($patterns) as $strKey) {
-            $key = explode(',', $strKey);
+            $key = explode($this->itemsetSeparator, $strKey);
             $key[] = $this->root->value;
             sort($key);
-            $newPatterns[implode(',', $key)] = $patterns[$strKey];
+            $newPatterns[implode($this->itemsetSeparator, $key)] = $patterns[$strKey];
         }
 
         return $newPatterns;
@@ -211,7 +221,13 @@ class FPTree
             $patterns[$this->root->value] = $this->root->count;
         }
 
-        for ($i = 1; $i <= count($items); $i++) {
+        // limit length of combinations to remaining length
+        $count = count($items);
+        if ($this->maxLength) {
+            $count = min($count, $this->maxLength - $this->getDepth());
+        }
+
+        for ($i = 1; $i <= $count; $i++) {
             $combinations = new Combinations($items,$i);
             foreach ($combinations->generator() as $subset) {
                 $pattern = $this->root->value !== null ? array_merge($subset, [$this->root->value]) : $subset;
@@ -223,7 +239,7 @@ class FPTree
                         $min = $this->frequent[$x];
                     }
                 }
-                $patterns[implode(',', $pattern)] = $min;
+                $patterns[implode($this->itemsetSeparator, $pattern)] = $min;
             }
         }
 
@@ -270,7 +286,8 @@ class FPTree
             }
 
             // Now we have the input for a subtree, so construct it and grab the patterns.
-            $subtree = new FPTree($conditionalTreeInput, $threshold, $item, $this->frequent[$item]);
+            $subtree = new FPTree($conditionalTreeInput, $threshold, $item, $this->frequent[$item], $this->maxLength);
+            $subtree->depth = $this->depth + 1;
             $subtreePatterns = $subtree->minePatterns($threshold);
 
             // Insert subtree patterns into main patterns dictionary.
@@ -284,5 +301,10 @@ class FPTree
         }
 
         return $patterns;
+    }
+
+    private function getDepth(): int
+    {
+        return $this->depth;
     }
 }
