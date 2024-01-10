@@ -11,8 +11,9 @@ class FPGrowth
     protected int $support = 3;
     protected float $confidence = 0.7;
     private int $maxLength = 0;
-
+    private $itemsetSeparator;
     private $patterns;
+
     private $rules;
 
     /**
@@ -81,11 +82,12 @@ class FPGrowth
      * @param int $support 1, 2, 3 ...
      * @param float $confidence 0 ... 1
      */
-    public function __construct(int $support, float $confidence, int $maxLength = 0)
+    public function __construct(int $support, float $confidence, int $maxLength = 0, string $itemsetSeparator = "\0")
     {
         $this->setSupport($support);
         $this->setConfidence($confidence);
         $this->setMaxLength($maxLength);
+        $this->itemsetSeparator = $itemsetSeparator;
     }
 
     /**
@@ -104,7 +106,7 @@ class FPGrowth
      */
     protected function findFrequentPatterns(array $transactions): array
     {
-        $tree = new FPTree($transactions, $this->support, null, 0, $this->maxLength);
+        $tree = new FPTree($transactions, $this->support, null, 0, $this->maxLength, $this->itemsetSeparator);
         return $tree->minePatterns($this->support);
     }
 
@@ -116,16 +118,16 @@ class FPGrowth
     {
         $rules = [];
         foreach (array_keys($patterns) as $pattern) {
-            $itemSet = explode(',', $pattern);
+            $itemSet = explode($this->itemsetSeparator, $pattern);
             $upperSupport = $patterns[$pattern];
             for ($i = 1; $i < count($itemSet); $i++) {
                 $combinations = new Combinations($itemSet, $i);
                 foreach ($combinations->generator() as $antecedent) {
                     sort($antecedent);
-                    $antecedentStr = implode(',', $antecedent);
+                    $antecedentStr = implode($this->itemsetSeparator, $antecedent);
                     $consequent = array_diff($itemSet, $antecedent);
                     sort($consequent);
-                    $consequentStr = implode(',', $consequent);
+                    $consequentStr = implode($this->itemsetSeparator, $consequent);
                     if (isset($patterns[$antecedentStr])) {
                         $lowerSupport = $patterns[$antecedentStr];
                         $confidence = floatval($upperSupport) / $lowerSupport;

@@ -18,7 +18,9 @@ class FPTree
 
     private int $maxLength = 0;
 
-    private int $depth = 0;
+    private string $itemsetSeparator;
+
+    private int    $depth = 0;
 
     /**
      * Initialize the tree.
@@ -27,12 +29,13 @@ class FPTree
      * @param $rootValue
      * @param int $rootCount
      */
-    public function __construct(array $transactions, int $threshold, $rootValue, int $rootCount, $maxLength = 0)
+    public function __construct(array $transactions, int $threshold, $rootValue, int $rootCount, $maxLength = 0, string $itemsetSeparator = "\0")
     {
         $this->frequent = $this->findFrequentItems($transactions, $threshold);
         $this->headers = $this->buildHeaderTable();
         $this->root = $this->buildFPTree($transactions, $rootValue, $rootCount, $this->frequent);
         $this->maxLength = $maxLength;
+        $this->itemsetSeparator = $itemsetSeparator;
     }
 
     /**
@@ -195,10 +198,10 @@ class FPTree
         // We are in a conditional tree.
         $newPatterns = [];
         foreach (array_keys($patterns) as $strKey) {
-            $key = explode(',', $strKey);
+            $key = explode($this->itemsetSeparator, $strKey);
             $key[] = $this->root->value;
             sort($key);
-            $newPatterns[implode(',', $key)] = $patterns[$strKey];
+            $newPatterns[implode($this->itemsetSeparator, $key)] = $patterns[$strKey];
         }
 
         return $newPatterns;
@@ -236,7 +239,7 @@ class FPTree
                         $min = $this->frequent[$x];
                     }
                 }
-                $patterns[implode(',', $pattern)] = $min;
+                $patterns[implode($this->itemsetSeparator, $pattern)] = $min;
             }
         }
 
